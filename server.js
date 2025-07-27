@@ -6,6 +6,7 @@ require('dotenv').config();
 const saleRoutes = require('./routes/sales');
 const expenseRoutes = require('./routes/expenses');
 const summaryRoutes = require('./routes/summary');
+const exportRoutes = require('./routes/exportRoutes');
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/api/sales', saleRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/summary', summaryRoutes);
+app.use('/export', exportRoutes);
 
 app.get('/', (req, res) => {
   res.send('Gustanto POS backend is live!');
