@@ -1,6 +1,7 @@
+// routes/exportRoutes.js
 const express = require('express');
 const { Parser } = require('json2csv');
-const Bill = require('../models/Bill');
+const Sale = require('../models/Sale');
 const Expense = require('../models/Expense');
 const router = express.Router();
 
@@ -8,20 +9,21 @@ const router = express.Router();
 router.get('/daily', async (req, res) => {
   try {
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
-    const bills = await Bill.find({
-      timestamp: { $gte: today, $lt: tomorrow }
+    const sales = await Sale.find({
+      createdAt: { $gte: today, $lt: tomorrow }
     });
 
     const parser = new Parser();
-    const csv = parser.parse(bills);
+    const csv = parser.parse(sales);
     res.header('Content-Type', 'text/csv');
     res.attachment('daily_sales.csv');
     return res.send(csv);
   } catch (err) {
+    console.error('Daily export error:', err);
     res.status(500).send('Export error');
   }
 });
@@ -33,22 +35,26 @@ router.get('/monthly', async (req, res) => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const bills = await Bill.find({ timestamp: { $gte: startOfMonth } });
+    const sales = await Sale.find({ createdAt: { $gte: startOfMonth } });
     const expenses = await Expense.find({ timestamp: { $gte: startOfMonth } });
 
-    const summary = {
-      totalSales: bills.reduce((sum, bill) => sum + bill.total, 0),
-      totalExpenses: expenses.reduce((sum, e) => sum + e.amount, 0),
-      netProfit: bills.reduce((sum, bill) => sum + bill.total, 0)
-                 - expenses.reduce((sum, e) => sum + e.amount, 0),
-    };
+    const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0);
+    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const netProfit = totalSales - totalExpenses;
+
+    const summary = [{
+      totalSales,
+      totalExpenses,
+      netProfit
+    }];
 
     const parser = new Parser();
-    const csv = parser.parse([summary]);
+    const csv = parser.parse(summary);
     res.header('Content-Type', 'text/csv');
     res.attachment('monthly_summary.csv');
     return res.send(csv);
   } catch (err) {
+    console.error('Monthly export error:', err);
     res.status(500).send('Export error');
   }
 });
