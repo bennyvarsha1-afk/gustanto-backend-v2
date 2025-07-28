@@ -1,8 +1,7 @@
-// models/Bill.js
 const mongoose = require('mongoose');
 
 const billSchema = new mongoose.Schema({
-  items: [String], // array of item names
+  items: [String], // List of item names
   total: Number,
   timestamp: {
     type: Date,
@@ -10,4 +9,4 @@ const billSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Bill', billSchema);
+module.exports = mongoose.model('Sale', billSchema); // ✅ Must be 'Sale'
