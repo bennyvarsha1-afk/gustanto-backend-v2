@@ -17,8 +17,14 @@ router.get('/daily', async (req, res) => {
       createdAt: { $gte: today, $lt: tomorrow }
     });
 
-    const parser = new Parser();
+    if (!sales || sales.length === 0) {
+      return res.status(400).send('No sales data found for today');
+    }
+
+    const fields = ['items', 'total', 'createdAt'];
+    const parser = new Parser({ fields });
     const csv = parser.parse(sales);
+
     res.header('Content-Type', 'text/csv');
     res.attachment('daily_sales.csv');
     return res.send(csv);
@@ -48,8 +54,10 @@ router.get('/monthly', async (req, res) => {
       netProfit
     }];
 
-    const parser = new Parser();
+    const fields = ['totalSales', 'totalExpenses', 'netProfit'];
+    const parser = new Parser({ fields });
     const csv = parser.parse(summary);
+
     res.header('Content-Type', 'text/csv');
     res.attachment('monthly_summary.csv');
     return res.send(csv);
