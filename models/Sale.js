@@ -1,4 +1,9 @@
 const mongoose = require('mongoose');
-const itemSchema = new mongoose.Schema({ name: String, price: Number, quantity: Number });
-const saleSchema = new mongoose.Schema({ items: [itemSchema], total: Number, createdAt: { type: Date, default: Date.now } });
-module.exports = mongoose.model('Sale', saleSchema);
+
+const saleSchema = new mongoose.Schema({
+  time: String,
+  total: Number,
+  items: Array,
+});
+
+module.exports = mongoose.models.Sale || mongoose.model('Sale', saleSchema);
