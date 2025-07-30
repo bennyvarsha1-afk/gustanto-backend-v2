@@ -6,4 +6,5 @@ const expenseSchema = new mongoose.Schema({
   date: String,
 });
 
-module.exports = mongoose.models.Expense || mongoose.model('Expense', expenseSchema);
+delete mongoose.connection.models['Expense'];
+module.exports = mongoose.model('Expense', expenseSchema);
